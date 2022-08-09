@@ -1,2 +1,0 @@
-aws dynamodb list-tables $LOCAL_DB
-aws dynamodb scan --table-name StarbucksLocations --select COUNT $LOCAL_DB

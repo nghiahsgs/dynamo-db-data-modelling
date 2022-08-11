@@ -46,9 +46,9 @@ client = boto3.client('dynamodb',
 
 #@NOTE 5 select a book with specific ISBN
 ISBN = "8021"
-key_condition_expression = "PK = :PK"
+key_condition_expression = "GSI1PK = :GSI1PK"
 expression_values = {
-    ":PK": {"S": "ISBN#%s"%ISBN}
+    ":GSI1PK": {"S": "ISBN#%s"%ISBN}
 }
 resp = client.query(
     TableName="LibraryV2",

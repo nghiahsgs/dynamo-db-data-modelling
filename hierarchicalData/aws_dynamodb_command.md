@@ -63,4 +63,9 @@ aws dynamodb get-item \
 ```
 
 
+## deleta table
+```
+aws dynamodb delete-table --table-name ample001
+```
+
 

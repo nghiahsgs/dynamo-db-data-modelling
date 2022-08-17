@@ -336,6 +336,37 @@ class ServiceType():
 
         return list_modes
 
+    @staticmethod
+    def search_service_type(mode,country,currency):
+        key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
+        expression_values = {
+            ":GSI1_PK": {"S": 'METADATA_SERVICETYPE'},
+            ":GSI1_SK": {"S": f'mode{mode}#country{country}#currency{currency}'},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI1',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        list_service_types = []
+        for item in Items:
+            name = item['GSI1_SK']['S'].split('#')[-1]
+            name = name[len('name'):]
+            service_type_id = item['SK']['S']
+            service_type_id = service_type_id[len('service_type_id'):]
+            list_service_types.append({
+                "service_type_id":service_type_id,
+                "mode":mode,
+                "country":country,
+                "currency":currency,
+                "name":name
+            })
+        return list_service_types
+
+
 
 class PromoCode():
     def __init__(self,**properties):

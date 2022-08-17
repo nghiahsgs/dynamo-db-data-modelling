@@ -229,7 +229,7 @@ class Payment():
                 "PK": {"S": 'Payment' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_PAYMENT' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
@@ -260,7 +260,7 @@ class Payment():
 class ServiceType():
     def __init__(self,**properties):
         self.SK = f"service_type_id{properties['service_type_id']}"
-        
+        self.service_type = properties
         self.properties = {}
         for key, value in properties.items():
             if isinstance(value,dict):
@@ -277,7 +277,7 @@ class ServiceType():
         
 
     def insert(self):
-        service_type = self.properties
+        service_type = self.service_type
         Item={
                 **self.properties,
                 "type": {"S": 'ServiceType' },
@@ -285,10 +285,10 @@ class ServiceType():
                 "PK": {"S": 'ServiceType' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_SERVICETYPE' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
-                "GSI1_PK": {"S": 'METADATA' },
+                "GSI1_PK": {"S": 'METADATA_SERVICETYPE' },
                 "GSI1_SK": {"S": f'mode{service_type["mode"]}#country{service_type["country"]}#currency{service_type["currency"]}#name{service_type["name"]}' },
 
                 "GSI2_PK": {"S": 'METADATA' },
@@ -311,6 +311,30 @@ class ServiceType():
             TableName=table_name,
             Item=Item
         )
+
+   
+    @staticmethod
+    def get_all_mode():
+        key_condition_expression = "GSI1_PK = :GSI1_PK"
+        expression_values = {
+            ":GSI1_PK": {"S": 'METADATA_SERVICETYPE'},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI1',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        list_modes = []
+        for item in Items:
+            mode = item['GSI1_SK']['S'].split('#')[0]
+            mode = mode[len('mode'):]
+            list_modes.append(mode)
+        list_modes = list(dict.fromkeys(list_modes))
+
+        return list_modes
 
 
 class PromoCode():
@@ -341,7 +365,7 @@ class PromoCode():
                 "PK": {"S": 'PromoCode' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_PROMOCODE' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
@@ -397,10 +421,10 @@ class Terminal():
                 "PK": {"S": 'Terminal' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_TERMINAL' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
-                "GSI1_PK": {"S": 'METADATA' },
+                "GSI1_PK": {"S": 'METADATA_TERMINAL' },
                 "GSI1_SK": {"S": f'teller_id{self.properties.get("teller_id")}' },
 
                 "GSI2_PK": {"S": 'METADATA' },
@@ -454,7 +478,7 @@ class Branch():
                 "PK": {"S": 'Branch' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_BRANCH' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
@@ -510,7 +534,7 @@ class Teller():
                 "PK": {"S": 'Teller' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_TELLER' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
@@ -565,7 +589,7 @@ class Stock():
                 "PK": {"S": 'Stock' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_STOCK' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
@@ -620,25 +644,25 @@ class Customer():
                 "PK": {"S": 'Customer' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
-                "GSI1_PK": {"S": 'METADATA' },
+                "GSI1_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI1_SK": {"S": f'{self.properties.get("customer_information",{}).get("personal_id")}'},
 
-                "GSI2_PK": {"S": 'METADATA' },
+                "GSI2_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI2_SK": {"S": f'{self.properties.get("contact_phone_number")}'},
 
-                "GSI3_PK": {"S": 'METADATA' },
+                "GSI3_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI3_SK": {"S": f'{self.properties.get("company_information",{}).get("uen")}'},
 
-                "GSI4_PK": {"S": 'METADATA' },
+                "GSI4_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI4_SK": {"S": f'{self.properties.get("contact_name")}'},
 
-                "GSI5_PK": {"S": 'METADATA' },
+                "GSI5_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI5_SK": {"S": f'{self.properties.get("contact_email")}'},
                 
-                "GSI6_PK": {"S": 'METADATA' },
+                "GSI6_PK": {"S": 'METADATA_CUSTOMER' },
                 "GSI6_SK": {"S": f'customer_type{self.properties.get("customer_type")}#created_at{self.properties.get("created_at")}' },
         }
         # pprint(Item)
@@ -649,68 +673,10 @@ class Customer():
 
 
 
-class Customer():
-    def __init__(self,**properties):
-        self.SK = f"customer_id{properties.get('customer_id')}"
-
-        self.properties = {}
-        for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
-                value_data_type = 'S'
-            elif isinstance(value,int) or isinstance(value,float):
-                value_data_type = 'N'
-            else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
-        
-
-    def insert(self):
-        customer = self.properties
-        
-        Item={
-                **self.properties,
-                "type": {"S": 'Customer' },
-                
-                "PK": {"S": 'Customer' },
-                "SK": {"S":  self.SK},
-                
-                "GSI_created_at_PK": {"S": 'METADATA' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
-
-                "GSI1_PK": {"S": 'METADATA' },
-                "GSI1_SK": {"S": f'{self.properties.get("customer_information",{}).get("personal_id")}'},
-
-                "GSI2_PK": {"S": 'METADATA' },
-                "GSI2_SK": {"S": f'{self.properties.get("contact_phone_number")}'},
-
-                "GSI3_PK": {"S": 'METADATA' },
-                "GSI3_SK": {"S": f'{self.properties.get("company_information",{}).get("uen")}'},
-
-                "GSI4_PK": {"S": 'METADATA' },
-                "GSI4_SK": {"S": f'{self.properties.get("contact_name")}'},
-
-                "GSI5_PK": {"S": 'METADATA' },
-                "GSI5_SK": {"S": f'{self.properties.get("contact_email")}'},
-                
-                "GSI6_PK": {"S": 'METADATA' },
-                "GSI6_SK": {
-                    "S": f"customer_type{customer['customer_type']}created_at{customer['created_at']}"
-                }
-        }
-        print(Item)
-        client.put_item(
-            TableName=table_name,
-            Item=Item
-        )
-
 
 class Bank():
     def __init__(self,**properties):
-        self.SK = f"bank_id{properties.get('bank_id')}"
+        self.SK = f"bank_id{properties['bank_id']}"
 
         self.properties = {}
         for key, value in properties.items():
@@ -735,7 +701,7 @@ class Bank():
                 "PK": {"S": 'Bank' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_BANK' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
@@ -765,7 +731,8 @@ class Bank():
 
 class Transaction():
     def __init__(self,**properties):
-        self.SK = f"branch_id{properties.get('branch',{}).get('branch_id',{})}#terminal_id{properties.get('terminal',{}).get('terminal_id')}#tran_mode{properties.get('transaction_mode')}#created_at{created_at}"
+        self.SK = f"branch_id{properties['branch']['branch_id']}#terminal_id{properties['terminal']['terminal_id']}#tran_mode{properties['transaction_mode']}#created_at{created_at}"
+        self.transaction = self.properties
 
         self.properties = {}
         for key, value in properties.items():
@@ -783,7 +750,7 @@ class Transaction():
         
 
     def insert(self):
-        transaction = self.properties
+        transaction = self.transaction
         Item={
                 **self.properties,
                 "type": {"S": 'Transaction' },
@@ -791,25 +758,25 @@ class Transaction():
                 "PK": {"S": 'Transaction' },
                 "SK": {"S":  self.SK},
                 
-                "GSI_created_at_PK": {"S": 'METADATA' },
+                "GSI_created_at_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
 
-                "GSI1_PK": {"S": 'METADATA' },
+                "GSI1_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI1_SK": {"S": customer_id },
 
-                "GSI2_PK": {"S": 'METADATA' },
+                "GSI2_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI2_SK": {"S": transaction.get('sender',{}).get('customer_id')},
 
-                "GSI3_PK": {"S": 'METADATA' },
+                "GSI3_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI3_SK": {"S": transaction.get('payment',{}).get('payment_id')},
 
-                "GSI4_PK": {"S": 'METADATA' },
+                "GSI4_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI4_SK": {"S": f'service_type_system{transaction["service_type_system"]}#branch_id{transaction["branch_id"]}#transaction_mode{transaction["transaction_mode"]}' },
 
-                "GSI5_PK": {"S": 'METADATA' },
+                "GSI5_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI5_SK": {"S": f'branch_id{transaction["branch_id"]}#terminal_id{transaction["terminal_id"]}#created_at{transaction["created_at"]}' },
                 
-                "GSI6_PK": {"S": 'METADATA' },
+                "GSI6_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI6_SK": {"S": f'branch_id{transaction["branch_id"]}#created_at{transaction["created_at"]}' },
         }
         # pprint(Item)

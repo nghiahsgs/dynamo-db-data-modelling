@@ -18,7 +18,7 @@ service_types = [
         "service_type_id":"service_type_id1",
         "name":"name1",
         "country":"VN",
-        "currencies":"currencies1",
+        "currency":"currency1",
         "mode":"mode1",
     }
 ]
@@ -204,7 +204,7 @@ transactions = [
 
 class Payment():
     def __init__(self,**properties):
-        self.SK = f"payment_id{properties.get('payment_id')}"
+        self.SK = f"payment_id{properties['payment_id']}"
         
         self.properties = {}
         for key, value in properties.items():
@@ -259,7 +259,7 @@ class Payment():
 
 class ServiceType():
     def __init__(self,**properties):
-        self.SK = f"service_type_id{properties.get('service_type_id')}"
+        self.SK = f"service_type_id{properties['service_type_id']}"
         
         self.properties = {}
         for key, value in properties.items():
@@ -315,7 +315,7 @@ class ServiceType():
 
 class PromoCode():
     def __init__(self,**properties):
-        self.SK = f"promo_code_id{properties.get('promo_code_id')}"
+        self.SK = f"promo_code_id{properties['promo_code_id']}"
         
         self.properties = {}
         for key, value in properties.items():
@@ -372,7 +372,7 @@ class PromoCode():
 
 class Terminal():
     def __init__(self,**properties):
-        self.SK = f"branch_id{properties.get('branch_id')}#terminal_id{properties.get('terminal_id')}"
+        self.SK = f"branch_id{properties['branch_id']}#terminal_id{properties['terminal_id']}"
         
         self.properties = {}
         for key, value in properties.items():
@@ -429,7 +429,7 @@ class Terminal():
 
 class Branch():
     def __init__(self,**properties):
-        self.SK = f"branch_id{properties.get('branch_id')}"
+        self.SK = f"branch_id{properties['branch_id']}"
         
         self.properties = {}
         for key, value in properties.items():
@@ -485,7 +485,7 @@ class Branch():
 
 class Teller():
     def __init__(self,**properties):
-        self.SK = f"teller_id{properties.get('teller_id')}"
+        self.SK = f"teller_id{properties['teller_id']}"
 
         self.properties = {}
         for key, value in properties.items():
@@ -540,7 +540,7 @@ class Teller():
 
 class Stock():
     def __init__(self,**properties):
-        self.SK = f"stock_id{properties.get('stock_id')}"
+        self.SK = f"stock_id{properties['stock_id']}"
 
         self.properties = {}
         for key, value in properties.items():
@@ -670,8 +670,7 @@ class Customer():
 
     def insert(self):
         customer = self.properties
-        GSI6_SK = f"customer_type{customer['customer_type']}created_at{customer['created_at']}"
-    
+        
         Item={
                 **self.properties,
                 "type": {"S": 'Customer' },
@@ -686,7 +685,7 @@ class Customer():
                 "GSI1_SK": {"S": f'{self.properties.get("customer_information",{}).get("personal_id")}'},
 
                 "GSI2_PK": {"S": 'METADATA' },
-                "GSI2_SK": {"S": f'{self.properties.get("contact_phone_number")}}',
+                "GSI2_SK": {"S": f'{self.properties.get("contact_phone_number")}'},
 
                 "GSI3_PK": {"S": 'METADATA' },
                 "GSI3_SK": {"S": f'{self.properties.get("company_information",{}).get("uen")}'},
@@ -699,7 +698,7 @@ class Customer():
                 
                 "GSI6_PK": {"S": 'METADATA' },
                 "GSI6_SK": {
-                    "S": GSI6_SK
+                    "S": f"customer_type{customer['customer_type']}created_at{customer['created_at']}"
                 }
         }
         print(Item)
@@ -824,26 +823,26 @@ if __name__ =="__main__":
         instance = Payment(**item)
         instance.insert()
     
-    # for item in service_types:
-    #     instance = ServiceType(**item)
-    #     instance.insert()
+    for item in service_types:
+        instance = ServiceType(**item)
+        instance.insert()
     
-    # for item in promo_codes:
-    #     instance = PromoCode(**item)
-    #     instance.insert()
+    for item in promo_codes:
+        instance = PromoCode(**item)
+        instance.insert()
     
-    # for item in terminals:
-    #     instance = Terminal(**item)
-    #     instance.insert()
+    for item in terminals:
+        instance = Terminal(**item)
+        instance.insert()
 
-    # for item in branches:
-    #     instance = Branch(**item)
-    #     instance.insert()
+    for item in branches:
+        instance = Branch(**item)
+        instance.insert()
 
-    # for item in tellers:
-    #     instance = Teller(**item)
-    #     instance.insert()
+    for item in tellers:
+        instance = Teller(**item)
+        instance.insert()
     
-    # for item in stocks:
-    #     instance = Stock(**item)
-    #     instance.insert()
+    for item in stocks:
+        instance = Stock(**item)
+        instance.insert()

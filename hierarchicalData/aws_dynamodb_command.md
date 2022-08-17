@@ -62,10 +62,12 @@ aws dynamodb get-item \
     $LOCAL_DB
 ```
 
+## scan table
+```
+aws dynamodb scan --table-name ample001 $LOCAL_DB
+```
 
 ## deleta table
 ```
-aws dynamodb delete-table --table-name ample001
+aws dynamodb delete-table --table-name ample001 $LOCAL_DB
 ```
-
-

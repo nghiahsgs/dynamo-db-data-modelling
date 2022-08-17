@@ -15,7 +15,6 @@ resp = client.create_table(
             "AttributeName": "SK",
             "AttributeType": "S"
         },
-
         #ToGetServiceType
         {
             "AttributeName": "GSI_ToGetServiceType_PK",

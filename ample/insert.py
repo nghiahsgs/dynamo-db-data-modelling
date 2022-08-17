@@ -29,37 +29,6 @@ service_types = [
     }
 ]
 
-'''
-for service_type in service_types:
-    GSI_ToGetAllMode_PK = "METADATA"
-    client.put_item(
-        TableName="ample001",
-        Item={
-            "PK": {"S": 'ServiceType' },
-            "SK": {"S": f'service_type_id{service_type["service_type_id"]}' },
-
-            "GSI_ToGetAllMode_PK": {"S": "METADATA" },
-            "GSI_ToGetAllMode_SK": {"S": service_type['mode'] },
-
-            "GSI1_ToGetServiceType_PK": {"S": service_type['mode'] },
-            "GSI1_ToGetServiceType_SK": {"S": service_type['mode'] },
-
-            "GSI2_ToGetServiceType_PK": {"S": service_type['country'] },
-            "GSI2_ToGetServiceType_SK": {"S": service_type['country'] },
-
-            "GSI3_ToGetServiceType_PK": {"S": service_type['currencies'] },
-            "GSI3_ToGetServiceType_SK": {"S": service_type['currencies'] },
-
-            
-            "service_type_id":{"S":service_type['service_type_id']},
-            "name":{"S":service_type['name']},
-            "country":{"S":service_type['country']},
-            "currencies":{"S":service_type['currencies']},
-            "mode":{"S":service_type['mode']}
-        },
-    )
-'''
-
 for service_type in service_types:
     GSI_ToGetAllMode_PK = "METADATA"
     client.put_item(

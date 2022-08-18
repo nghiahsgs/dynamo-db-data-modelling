@@ -7,230 +7,52 @@ client = boto3.client('dynamodb',
 )
 table_name = "ample001"
 
-payments = [
-    {
-        "payment_id":"payment_id1",
-        "amount_received":5000
-    }
-]
-service_types = [
-    {
-        "service_type_id":"service_type_id1",
-        "name":"name1",
-        "country":"VN",
-        "currency":"currency1",
-        "mode":"mode1",
-    }
-]
-promo_codes = [
-    {
-        "promo_code_id":"promo_code_id1",
-        "percent_dollar":20,
-        "code":"code_abc",
-        "amount":8,
-        "start":'2022-08-17T03:03:59.952Z',
-        "end":"2022-09-16T03:03:59.952Z",
-    }
-]
-
-terminals = [
-    {
-        "terminal_id":"terminal_id1",
-        "terminal_number":"terminal_number1",
-        "terminal_code":"terminal_code1",
-        "branch_id":"branch_id1",
-        "teller_id":"teller_id1",
-    }
-]
-branches = [
-    {
-        "branch_id":"branch_id1",
-        "branch_name":"branch_name1",
-        "branch_code":"branch_code1",
-        "branch_country":"VN",
-        "branch_phone":"branch_phone1",
-        "branch_opening_hour":"branch_opening_hour1",
-        "branch_location":"branch_location1",
-        "stock_id":"stock_id1"
-    }   
-]
-tellers = [
-    {
-        "teller_id":"teller_id1",
-        "teller_username":"teller_username1"
-    }
-]
-stocks = [
-    {
-        "stock_id":"stock_id1",
-        "USD":100,
-        "SGD":200,
-    }
-]
-
-
-
-customers = [
-    # sender
-    # customer_id => backend gen, need to check duplicate
-    {
-        "customer_id":"customer_id1",
-        "customer_information":{
-            "first_name": "First",
-            "last_name": "last name",
-            "second_language_name": "33443",
-            "personal_id": "33333",
-            "personal_id_type": "Passport",
-            "personal_id_expiry": "1728000",
-            "date_of_birth": "816048000",
-            "country_of_birth": "Algeria",
-            "nationality": "Algeria",
-            "kyc_document": []
-        },
-        "company_information":None,
-        "contact_name":"First",
-        "contact_phone_number":"+84982149607",
-        "contact_email":"thithanh@gmail.com",
-        "contact_address":"245 saigon",
-        "compliance_country":"Local",
-        "compliance_industry":"",
-        "source_of_fund":"Debt capital",
-        "occupation":"Chief Executives",
-        "customer_type":"Individual",
-        "customer_location":"Local",
-        "remark":"",
-        "created_at":"2022-08-17T03:03:59.952Z",
-    },
-    # receiver
-    # customer_id => backend gen, need to check duplicate
-    {
-        "customer_id":"customer_id2",
-        "customer_information":{
-            "first_name": "First",
-            "last_name": "last name 2",
-            "second_language_name": "33443",
-            "personal_id": "33333",
-            "personal_id_type": "Passport",
-            "personal_id_expiry": "1728000",
-            "date_of_birth": "816048000",
-            "country_of_birth": "Algeria",
-            "nationality": "Algeria",
-            "kyc_document": []
-        },
-        "company_information":None,
-        "contact_name":"First",
-        "contact_phone_number":"+84982149607",
-        "contact_email":"thithanh@gmail.com",
-        "contact_address":"245 saigon",
-        "compliance_country":"Local",
-        "compliance_industry":"",
-        "source_of_fund":"Debt capital",
-        "occupation":"Chief Executives",
-        "customer_type":"Individual",
-        "customer_location":"Local",
-        "remark":"",
-        "created_at":"2022-08-17T03:03:59.952Z",
-    }
-] 
-banks = [
-    {
-        "bank_id": "bank_id1",
-        "bank_name": "bank name 1",
-        "bank_2nd_language": "bank in 2nd language",
-        "bank_code": "bank code",
-        "branch_name": "branch name 1",
-        "branch_2nd_language": "branch 2",
-        "branch_code": "branch code",
-        "account_no": "1555555",
-        "remark": ""
-    }
-]
-transactions = [
-    {
-        "transaction_id":"transaction_id1",
-        "transaction_datetime":"2022-08-17T03:03:59.952Z",
-        "source":"source",
-        "teller":{
-            "teller_id":"teller_id1",
-            "teller_username":"teller_username1"
-        },
-        "sender":customers[0],
-        "receiver":customers[1],
-        "transaction_mode":"Western Union",
-        "service_type":service_types[0],
-        "service_type_system":"Send",
-        "receipt":{
-            "receipt_number":"20220817",
-            "receipt_date":"2022-08-17T03:03:59.952Z"
-        },
-        "rate": {
-            "country": "Albania",
-            "currency": "EUR",
-            "rate": 0.8,
-            "inverse_rate": 1.25
-        },
-
-        "source_currency": "EUR",
-        "source_amount": "1111",
-        "destination_currency": "SGD",
-        "destination_amount": "1388.75",
-
-        "promo_code":promo_codes[0],
-        "status":"pending",
-        "tendering": {
-            "payment_mode": {
-                "cash": "11",
-                "nets": "2",
-                "dbs": "2",
-                "maybank": "2",
-                "banktransfer": "2",
-                "total": "19"
-            },
-            "source_amount": "1111",
-            "fees": 10,
-            "promo": {
-                "percent_dollar": 0,
-                "amount": 3
-            },
-            "status": "paid"
-        },
-        "bank_detail":banks[0],
-        "terminal":terminals[0],
-        "branch":branches[0],
-        "payment":payments[0],
-        "created_at":"2022-08-17T03:03:59.952Z"
-    }
-]
+def filterAttrItemRes(func):
+    def wrapperFunc(*args,**kargs):
+        Items = func(*args,**kargs)
+        L_items = []
+        for item in Items:
+            d= {}
+            for key,value in item.items():
+                if not key.startswith('PK') and not key.startswith('SK') and not key.startswith('GSI') and not key=='type':
+                    d[key] = value[list(value.keys())[0]]
+            L_items.append(d)
+        return L_items
+    return wrapperFunc
+    
 
 class Payment():
     def __init__(self,**properties):
-        self.SK = f"payment_id{properties['payment_id']}"
+        self.payment = properties
         
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass
+                 
         
 
     def insert(self):
+        payment = self.payment
         Item={
                 **self.properties,
                 "type": {"S": 'Payment' },
                 
                 "PK": {"S": 'Payment' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"payment_id{payment['payment_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_PAYMENT' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": payment.get('created_at') if payment.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
                 "GSI1_SK": {"S": 'METADATA' },
@@ -255,25 +77,43 @@ class Payment():
             TableName=table_name,
             Item=Item
         )
+    
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_payment():
+        key_condition_expression = "PK = :PK"
+        expression_values = {
+            ":PK": {"S": 'Payment'},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items 
+
 
 
 class ServiceType():
     def __init__(self,**properties):
-        self.SK = f"service_type_id{properties['service_type_id']}"
         self.service_type = properties
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass
+            
         
 
     def insert(self):
@@ -283,10 +123,10 @@ class ServiceType():
                 "type": {"S": 'ServiceType' },
                 
                 "PK": {"S": 'ServiceType' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"service_type_id{service_type['service_type_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_SERVICETYPE' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": service_type.get('created_at') if service_type.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA_SERVICETYPE' },
                 "GSI1_SK": {"S": f'mode{service_type["mode"]}#country{service_type["country"]}#currency{service_type["currency"]}#name{service_type["name"]}' },
@@ -370,34 +210,35 @@ class ServiceType():
 
 class PromoCode():
     def __init__(self,**properties):
-        self.SK = f"promo_code_id{properties['promo_code_id']}"
-        
+        self.promo_code = properties
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass
+             
         
 
     def insert(self):
-        service_type = self.properties
+        promo_code = self.promo_code
         Item={
                 **self.properties,
                 "type": {"S": 'PromoCode' },
                 
                 "PK": {"S": 'PromoCode' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"promo_code_id{promo_code['promo_code_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_PROMOCODE' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": promo_code.get('created_at') if promo_code.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
                 "GSI1_SK": {"S": 'METADATA' },
@@ -427,36 +268,38 @@ class PromoCode():
 
 class Terminal():
     def __init__(self,**properties):
-        self.SK = f"branch_id{properties['branch_id']}#terminal_id{properties['terminal_id']}"
+        self.terminal = properties
         
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass 
         
 
     def insert(self):
+        terminal = self.terminal
         Item={
                 **self.properties,
                 "type": {"S": 'Terminal' },
                 
                 "PK": {"S": 'Terminal' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"branch_id{terminal['branch_id']}#terminal_id{terminal['terminal_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_TERMINAL' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": terminal.get('created_at') if terminal.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA_TERMINAL' },
-                "GSI1_SK": {"S": f'teller_id{self.properties.get("teller_id")}' },
+                "GSI1_SK": {"S": f'teller_id{terminal["teller_id"]}' },
 
                 "GSI2_PK": {"S": 'METADATA' },
                 "GSI2_SK": {"S": 'METADATA' },
@@ -479,38 +322,73 @@ class Terminal():
             Item=Item
         )
 
+    @staticmethod
+    @filterAttrItemRes
+    def get_terminals_by_branch_id(branch_id):
+        key_condition_expression = "PK = :PK and begins_with(SK,:SK)"
+        expression_values = {
+            ":PK": {"S": 'Terminal'},
+            ":SK": {"S": f"branch_id{branch_id}"},
+        }
 
+        resp = client.query(
+            TableName=table_name,
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_terminals_by_teller_id(teller_id):
+        key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
+        expression_values = {
+            ":GSI1_PK": {"S": 'METADATA_TERMINAL'},
+            ":GSI1_SK": {"S": f'teller_id{teller_id}'},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI1',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
 
 
 class Branch():
     def __init__(self,**properties):
-        self.SK = f"branch_id{properties['branch_id']}"
+        self.branch = properties
+        
         
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass 
         
-
     def insert(self):
+        branch = self.branch
         Item={
                 **self.properties,
                 "type": {"S": 'Branch' },
                 
                 "PK": {"S": 'Branch' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"branch_id{branch['branch_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_BRANCH' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": branch.get('created_at') if branch.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
                 "GSI1_SK": {"S": 'METADATA' },
@@ -536,34 +414,52 @@ class Branch():
             Item=Item
         )
 
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_branch():
+        key_condition_expression = "PK = :PK"
+        expression_values = {
+            ":PK": {"S": 'Branch'},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
 
 
 class Teller():
     def __init__(self,**properties):
-        self.SK = f"teller_id{properties['teller_id']}"
+        self.teller = properties
+        
 
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass
         
 
     def insert(self):
+        teller = self.teller
         Item={
                 **self.properties,
                 "type": {"S": 'Teller' },
                 
                 "PK": {"S": 'Teller' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"teller_id{teller['teller_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_TELLER' },
                 "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
@@ -595,33 +491,35 @@ class Teller():
 
 class Stock():
     def __init__(self,**properties):
-        self.SK = f"stock_id{properties['stock_id']}"
+        self.stock = properties
+        
 
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
-        
+                pass
 
     def insert(self):
+        stock = self.stock
         Item={
                 **self.properties,
                 "type": {"S": 'Stock' },
                 
                 "PK": {"S": 'Stock' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"stock_id{stock['stock_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_STOCK' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": stock.get('created_at') if stock.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
                 "GSI1_SK": {"S": 'METADATA' },
@@ -647,54 +545,92 @@ class Stock():
             Item=Item
         )
 
+    @staticmethod
+    @filterAttrItemRes
+    def get_stocks_by_stock_id(stock_id):
+        key_condition_expression = "PK = :PK and begins_with(SK,:SK)"
+        expression_values = {
+            ":PK": {"S": 'Stock'},
+            ":SK": {"S": f'stock_id{stock_id}'},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
 
 class Customer():
     def __init__(self,**properties):
-        self.SK = f"customer_id{properties.get('customer_id')}"
-
+        self.customer = properties
+        
         self.properties = {}
         for key, value in properties.items():
             if isinstance(value,dict):
-                value_data_type = 'M'
+                if key == 'customer_information':
+                    self.properties[key] = {
+                        'M':{
+                            "first_name": {"S":value['first_name']},
+                            "last_name": {"S":value['last_name']},
+                            "second_language_name": {"S":value['second_language_name']},
+                            "personal_id": {"S":value['personal_id']},
+                            "personal_id_type": {"S":value['personal_id_type']},
+                            "personal_id_expiry": {"S":value['personal_id_expiry']},
+                            "date_of_birth": {"S":value['date_of_birth']},
+                            "country_of_birth": {"S":value['country_of_birth']},
+                            "nationality": {"S":value['nationality']},
+                            "kyc_document": {"L":[
+                                {"S":e}
+                                for e in value['kyc_document']
+                            ]},
+                        }
+                    }
             elif isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass 
         
 
     def insert(self):
+        customer = self.customer
         Item={
                 **self.properties,
                 "type": {"S": 'Customer' },
                 
                 "PK": {"S": 'Customer' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"customer_id{customer.get('customer_id')}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": customer.get('created_at') if customer.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI1_SK": {"S": f'{self.properties.get("customer_information",{}).get("personal_id")}'},
+                "GSI1_SK": {"S": f'{customer.get("customer_information",{}).get("personal_id") if customer.get("customer_information",{}) else None}'},
 
                 "GSI2_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI2_SK": {"S": f'{self.properties.get("contact_phone_number")}'},
+                "GSI2_SK": {"S": f'{customer.get("contact_phone_number")}'},
 
                 "GSI3_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI3_SK": {"S": f'{self.properties.get("company_information",{}).get("uen")}'},
+                "GSI3_SK": {"S": f'{customer.get("company_information",{}).get("uen") if customer.get("company_information",{}) else None}'},
 
                 "GSI4_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI4_SK": {"S": f'{self.properties.get("contact_name")}'},
+                "GSI4_SK": {"S": f'{customer.get("contact_name")}'},
 
                 "GSI5_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI5_SK": {"S": f'{self.properties.get("contact_email")}'},
+                "GSI5_SK": {"S": f'{customer.get("contact_email")}'},
                 
                 "GSI6_PK": {"S": 'METADATA_CUSTOMER' },
-                "GSI6_SK": {"S": f'customer_type{self.properties.get("customer_type")}#created_at{self.properties.get("created_at")}' },
+                "GSI6_SK": {"S": f'customer_type{customer.get("customer_type")}#created_at{customer.get("created_at")}' },
         }
         # pprint(Item)
         client.put_item(
@@ -707,33 +643,37 @@ class Customer():
 
 class Bank():
     def __init__(self,**properties):
-        self.SK = f"bank_id{properties['bank_id']}"
+        self.bank = properties
+        
 
         self.properties = {}
         for key, value in properties.items():
-            if isinstance(value,dict):
-                value_data_type = 'M'
-            elif isinstance(value,str):
+            if isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass
+                 
         
 
     def insert(self):
+        bank = self.bank
         Item={
                 **self.properties,
                 "type": {"S": 'Bank' },
                 
                 "PK": {"S": 'Bank' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"bank_id{bank['bank_id']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_BANK' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": bank.get('created_at') if bank.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA' },
                 "GSI1_SK": {"S": 'METADATA' },
@@ -762,22 +702,42 @@ class Bank():
 
 class Transaction():
     def __init__(self,**properties):
-        self.SK = f"branch_id{properties['branch']['branch_id']}#terminal_id{properties['terminal']['terminal_id']}#tran_mode{properties['transaction_mode']}#created_at{created_at}"
-        self.transaction = self.properties
+        self.transaction = properties
+        
+        
 
         self.properties = {}
         for key, value in properties.items():
             if isinstance(value,dict):
-                value_data_type = 'M'
+                if key == 'receipt':
+                    self.properties[key] = {
+                        'M':{
+                            "receipt_number": {"S":value['receipt_number']},
+                            "receipt_date": {"S":value['receipt_date']}
+                        }
+                    }
+                if key == 'rate':
+                    self.properties[key] = {
+                        'M':{
+                            "country": {"S":value['country']},
+                            "currency": {"S":value['currency']},
+                            "rate": {"N":'%s'%value['rate']},
+                            "inverse_rate": {"N":'%s'%value['inverse_rate']}
+                        }
+                    }
             elif isinstance(value,str):
                 value_data_type = 'S'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             elif isinstance(value,int) or isinstance(value,float):
                 value_data_type = 'N'
+                self.properties[key] = {
+                    value_data_type:'%s'%value
+                }
             else:
-                value_data_type = 'S'
-            self.properties[key] = {
-                value_data_type:'%s'%value
-            } 
+                pass
+             
         
 
     def insert(self):
@@ -787,19 +747,19 @@ class Transaction():
                 "type": {"S": 'Transaction' },
                 
                 "PK": {"S": 'Transaction' },
-                "SK": {"S":  self.SK},
+                "SK": {"S":  f"branch_id{transaction['branch_id']}#terminal_id{transaction['terminal_id']}#tran_mode{transaction['transaction_mode']}#created_at{transaction['created_at']}"},
                 
                 "GSI_created_at_PK": {"S": 'METADATA_TRANSACTION' },
-                "GSI_created_at_SK": {"S": self.properties.get('created_at') if self.properties.get('created_at') else datetime.now().isoformat()},
+                "GSI_created_at_SK": {"S": transaction.get('created_at') if transaction.get('created_at') else datetime.now().isoformat()},
 
                 "GSI1_PK": {"S": 'METADATA_TRANSACTION' },
-                "GSI1_SK": {"S": customer_id },
+                "GSI1_SK": {"S": transaction.get('sender') },
 
                 "GSI2_PK": {"S": 'METADATA_TRANSACTION' },
-                "GSI2_SK": {"S": transaction.get('sender',{}).get('customer_id')},
+                "GSI2_SK": {"S": transaction.get('receiver')},
 
                 "GSI3_PK": {"S": 'METADATA_TRANSACTION' },
-                "GSI3_SK": {"S": transaction.get('payment',{}).get('payment_id')},
+                "GSI3_SK": {"S": transaction.get('payment_id')},
 
                 "GSI4_PK": {"S": 'METADATA_TRANSACTION' },
                 "GSI4_SK": {"S": f'service_type_system{transaction["service_type_system"]}#branch_id{transaction["branch_id"]}#transaction_mode{transaction["transaction_mode"]}' },
@@ -815,8 +775,227 @@ class Transaction():
             TableName=table_name,
             Item=Item
         )
+    
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_transactions_by_payment_id(payment_id):
+        # key_condition_expression = "GSI3_PK = :GSI3_PK and begins_with(GSI3_SK,:GSI3_SK)"
+        # expression_values = {
+        #     ":GSI3_PK": {"S": 'METADATA_TRANSACTION'},
+        #     ":GSI3_SK": {"S": payment_id},
+        # }
+        
+
+        key_condition_expression = "GSI3_PK = :GSI3_PK"
+        expression_values = {
+            ":GSI3_PK": {"S": 'METADATA_TRANSACTION'},
+            # ":GSI3_SK": {"S": payment_id},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI3',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
 
 if __name__ =="__main__":
+    payments = [
+        {
+            "payment_id":"payment_id1",
+            "amount_received":5000
+        }
+    ]
+    service_types = [
+        {
+            "service_type_id":"service_type_id1",
+            "name":"name1",
+            "country":"VN",
+            "currency":"currency1",
+            "mode":"mode1",
+        }
+    ]
+    promo_codes = [
+        {
+            "promo_code_id":"promo_code_id1",
+            "percent_dollar":20,
+            "code":"code_abc",
+            "amount":8,
+            "start":'2022-08-17T03:03:59.952Z',
+            "end":"2022-09-16T03:03:59.952Z",
+        }
+    ]
+
+    terminals = [
+        {
+            "terminal_id":"terminal_id1",
+            "terminal_number":"terminal_number1",
+            "terminal_code":"terminal_code1",
+            "branch_id":"branch_id1",
+            "teller_id":"teller_id1",
+        }
+    ]
+    branches = [
+        {
+            "branch_id":"branch_id1",
+            "branch_name":"branch_name1",
+            "branch_code":"branch_code1",
+            "branch_country":"VN",
+            "branch_phone":"branch_phone1",
+            "branch_opening_hour":"branch_opening_hour1",
+            "branch_location":"branch_location1",
+            "stock_id":"stock_id1"
+        }   
+    ]
+    tellers = [
+        {
+            "teller_id":"teller_id1",
+            "teller_username":"teller_username1"
+        }
+    ]
+    stocks = [
+        {
+            "stock_id":"stock_id1",
+            "USD":100,
+            "SGD":200,
+        }
+    ]
+
+
+
+    customers = [
+        # sender
+        # customer_id => backend gen, need to check duplicate
+        {
+            "customer_id":"customer_id1",
+            "customer_information":{
+                "first_name": "First",
+                "last_name": "last name",
+                "second_language_name": "33443",
+                "personal_id": "33333",
+                "personal_id_type": "Passport",
+                "personal_id_expiry": "1728000",
+                "date_of_birth": "816048000",
+                "country_of_birth": "Algeria",
+                "nationality": "Algeria",
+                "kyc_document": ['kyc_document1','kyc_document2']
+            },
+            "company_information":None,
+            "contact_name":"First",
+            "contact_phone_number":"+84982149607",
+            "contact_email":"thithanh@gmail.com",
+            "contact_address":"245 saigon",
+            "compliance_country":"Local",
+            "compliance_industry":"",
+            "source_of_fund":"Debt capital",
+            "occupation":"Chief Executives",
+            "customer_type":"Individual",
+            "customer_location":"Local",
+            "remark":"",
+            "created_at":"2022-08-17T03:03:59.952Z",
+        },
+        # receiver
+        # customer_id => backend gen, need to check duplicate
+        {
+            "customer_id":"customer_id2",
+            "customer_information":{
+                "first_name": "First",
+                "last_name": "last name 2",
+                "second_language_name": "33443",
+                "personal_id": "33333",
+                "personal_id_type": "Passport",
+                "personal_id_expiry": "1728000",
+                "date_of_birth": "816048000",
+                "country_of_birth": "Algeria",
+                "nationality": "Algeria",
+                "kyc_document": []
+            },
+            "company_information":None,
+            "contact_name":"First",
+            "contact_phone_number":"+84982149607",
+            "contact_email":"thithanh@gmail.com",
+            "contact_address":"245 saigon",
+            "compliance_country":"Local",
+            "compliance_industry":"",
+            "source_of_fund":"Debt capital",
+            "occupation":"Chief Executives",
+            "customer_type":"Individual",
+            "customer_location":"Local",
+            "remark":"",
+            "created_at":"2022-08-17T03:03:59.952Z",
+        }
+    ] 
+    banks = [
+        {
+            "bank_id": "bank_id1",
+            "bank_name": "bank name 1",
+            "bank_2nd_language": "bank in 2nd language",
+            "bank_code": "bank code",
+            "branch_name": "branch name 1",
+            "branch_2nd_language": "branch 2",
+            "branch_code": "branch code",
+            "account_no": "1555555",
+            "remark": ""
+        }
+    ]
+    transactions = [
+        {
+            "transaction_id":"transaction_id1",
+            "transaction_datetime":"2022-08-17T03:03:59.952Z",
+            "source":"source",
+            "teller_id":"teller_id1",
+            "sender":customers[0]['customer_id'],
+            "receiver":customers[1]['customer_id'],
+            "transaction_mode":"Western Union",
+            "service_type":service_types[0],
+            "service_type_system":"Send",
+            "receipt":{
+                "receipt_number":"20220817",
+                "receipt_date":"2022-08-17T03:03:59.952Z"
+            },
+            "rate": {
+                "country": "Albania",
+                "currency": "EUR",
+                "rate": 0.8,
+                "inverse_rate": 1.25
+            },
+
+            "source_currency": "EUR",
+            "source_amount": "1111",
+            "destination_currency": "SGD",
+            "destination_amount": "1388.75",
+
+            "promo_code":promo_codes[0],
+            "status":"pending",
+            # "tendering": {
+            #     "payment_mode": {
+            #         "cash": "11",
+            #         "nets": "2",
+            #         "dbs": "2",
+            #         "maybank": "2",
+            #         "banktransfer": "2",
+            #         "total": "19"
+            #     },
+            #     "source_amount": "1111",
+            #     "fees": 10,
+            #     "promo": {
+            #         "percent_dollar": 0,
+            #         "amount": 3
+            #     },
+            #     "status": "paid"
+            # },
+            "bank_detail":banks[0]["bank_id"],
+            "terminal_id":terminals[0]["terminal_id"],
+            "branch_id":branches[0]["branch_id"],
+            "payment_id":payments[0]["payment_id"],
+            "created_at":"2022-08-17T03:03:59.952Z"
+        }
+    ]
+
+
     for item in payments:
         instance = Payment(**item)
         instance.insert()
@@ -844,3 +1023,16 @@ if __name__ =="__main__":
     for item in stocks:
         instance = Stock(**item)
         instance.insert()
+
+    for item in customers:
+        instance = Customer(**item)
+        instance.insert()
+
+    for item in banks:
+        instance = Bank(**item)
+        instance.insert()
+
+    for item in transactions:
+        instance = Transaction(**item)
+        instance.insert()
+

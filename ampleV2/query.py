@@ -45,6 +45,69 @@ Items = resp.get('Items')
 # pprint(payments)
 
 
-payment_id = 'payment_id1'
-transactions = insert.Transaction.get_all_transactions_by_payment_id(payment_id)
+
+
+# customers = insert.Customer.get_all_customers()
+# pprint(customers)
+
+
+# personal_id = '33333'
+# customers = insert.Customer.get_customers_by_personal_id(personal_id)
+# pprint(customers)
+
+# contact_phone_number = '+849821'
+# customers = insert.Customer.get_customers_by_contact_phone_number(contact_phone_number)
+# pprint(customers)
+
+# uen = '+849821'
+# customers = insert.Customer.get_customers_by_uen(uen)
+# pprint(customers)
+
+# contact_name = 'First'
+# customers = insert.Customer.get_customers_by_contact_name(contact_name)
+# pprint(customers)
+
+# contact_email = 'thithanh@gmail.'
+# customers = insert.Customer.get_customers_by_contact_email(contact_email)
+# pprint(customers)
+
+
+
+# payment_id = 'payment_id1'
+# transactions = insert.Transaction.get_all_transactions_by_payment_id(payment_id)
+# pprint(transactions)
+
+# transactions = insert.Transaction.get_all_transactions()
+# pprint(transactions)
+
+# customer_id = 'customer_id1'
+# transactions = insert.Transaction.get_all_transactions_by_sender_id(customer_id)
+# pprint(transactions)
+
+
+# customer_id = 'customer_id2'
+# transactions = insert.Transaction.get_all_transactions_by_receiver_id(customer_id)
+# pprint(transactions)
+
+
+# branch_id = 'branch_id1'
+# from_date = '2022-08-17T03:03:59.952Z'
+# to_date = '2022-08-17T03:03:59.952Z'
+# transactions = insert.Transaction.get_trans_by_branch(branch_id,from_date,to_date)
+# pprint(transactions)
+
+# branch_id = 'branch_id1'
+# terminal_id = 'terminal_id1'
+# from_date = '2022-08-17T03:03:59.952Z'
+# to_date = '2022-08-17T03:03:59.952Z'
+# transactions = insert.Transaction.get_trans_by_branch_and_terminal(branch_id,terminal_id,from_date,to_date)
+# pprint(transactions)
+
+
+branch_id = 'branch_id1'
+terminal_id = 'terminal_id1'
+tran_mode = 'Western Union'
+from_date = '2022-08-17T03:03:59.952Z'
+to_date = '2022-08-17T03:03:59.952Z'
+transactions = insert.Transaction.get_trans_by_branch_and_terminal_and_mode(branch_id,terminal_id,tran_mode,from_date,to_date)
 pprint(transactions)

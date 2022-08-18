@@ -638,6 +638,111 @@ class Customer():
             Item=Item
         )
 
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_customers():
+        key_condition_expression = "PK = :PK"
+        expression_values = {
+            ":PK": {"S": 'Customer'},
+            }
+
+        resp = client.query(
+            TableName=table_name,
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_customers_by_personal_id(personal_id):
+        key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
+        expression_values = {
+            ":GSI1_PK": {"S": 'METADATA_CUSTOMER'},
+            ":GSI1_SK": {"S": personal_id},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI1',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_customers_by_contact_phone_number(contact_phone_number):
+        key_condition_expression = "GSI2_PK = :GSI2_PK and begins_with(GSI2_SK,:GSI2_SK)"
+        expression_values = {
+            ":GSI2_PK": {"S": 'METADATA_CUSTOMER'},
+            ":GSI2_SK": {"S": contact_phone_number},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI2',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_customers_by_uen(uen):
+        key_condition_expression = "GSI3_PK = :GSI3_PK and begins_with(GSI3_SK,:GSI3_SK)"
+        expression_values = {
+            ":GSI3_PK": {"S": 'METADATA_CUSTOMER'},
+            ":GSI3_SK": {"S": uen},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI3',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_customers_by_contact_name(contact_name):
+        key_condition_expression = "GSI4_PK = :GSI4_PK and begins_with(GSI4_SK,:GSI4_SK)"
+        expression_values = {
+            ":GSI4_PK": {"S": 'METADATA_CUSTOMER'},
+            ":GSI4_SK": {"S": contact_name},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI4',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_customers_by_contact_email(contact_email):
+        key_condition_expression = "GSI5_PK = :GSI5_PK and begins_with(GSI5_SK,:GSI5_SK)"
+        expression_values = {
+            ":GSI5_PK": {"S": 'METADATA_CUSTOMER'},
+            ":GSI5_SK": {"S": contact_email},
+        }
+
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI5',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
 
 
 
@@ -779,22 +884,119 @@ class Transaction():
     @staticmethod
     @filterAttrItemRes
     def get_all_transactions_by_payment_id(payment_id):
-        # key_condition_expression = "GSI3_PK = :GSI3_PK and begins_with(GSI3_SK,:GSI3_SK)"
-        # expression_values = {
-        #     ":GSI3_PK": {"S": 'METADATA_TRANSACTION'},
-        #     ":GSI3_SK": {"S": payment_id},
-        # }
-        
-
-        key_condition_expression = "GSI3_PK = :GSI3_PK"
+        key_condition_expression = "GSI3_PK = :GSI3_PK and begins_with(GSI3_SK,:GSI3_SK)"
         expression_values = {
             ":GSI3_PK": {"S": 'METADATA_TRANSACTION'},
-            # ":GSI3_SK": {"S": payment_id},
+            ":GSI3_SK": {"S": payment_id},
         }
-
         resp = client.query(
             TableName=table_name,
             IndexName='GSI3',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_transactions_by_sender_id(customer_id):
+        key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
+        expression_values = {
+            ":GSI1_PK": {"S": 'METADATA_TRANSACTION'},
+            ":GSI1_SK": {"S": customer_id},
+        }
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI1',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_transactions_by_receiver_id(customer_id):
+        key_condition_expression = "GSI2_PK = :GSI2_PK and begins_with(GSI2_SK,:GSI2_SK)"
+        expression_values = {
+            ":GSI2_PK": {"S": 'METADATA_TRANSACTION'},
+            ":GSI2_SK": {"S": customer_id},
+        }
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI2',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_all_transactions():
+        key_condition_expression = "PK = :PK"
+        expression_values = {
+            ":PK": {"S": 'Transaction'}
+        }
+        resp = client.query(
+            TableName=table_name,
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_trans_by_branch(branch_id,from_date,to_date):
+        key_condition_expression = "GSI6_PK = :GSI6_PK and GSI6_SK BETWEEN :GSI6_SK_FROM AND :GSI6_SK_TO"
+        expression_values = {
+            ":GSI6_PK": {"S": 'METADATA_TRANSACTION'},
+            ":GSI6_SK_FROM": {"S": f"branch_id{branch_id}#created_at{from_date}"},
+            ":GSI6_SK_TO": {"S": f"branch_id{branch_id}#created_at{to_date}"}
+        }
+        
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI6',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_trans_by_branch_and_terminal(branch_id,terminal_id,from_date,to_date):
+        key_condition_expression = "GSI5_PK = :GSI5_PK and GSI5_SK BETWEEN :GSI5_SK_FROM AND :GSI5_SK_TO"
+        expression_values = {
+            ":GSI5_PK": {"S": 'METADATA_TRANSACTION'},
+            ":GSI5_SK_FROM": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#created_at{from_date}"},
+            ":GSI5_SK_TO": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#created_at{to_date}"},
+        }
+        
+        resp = client.query(
+            TableName=table_name,
+            IndexName='GSI5',
+            KeyConditionExpression=key_condition_expression,
+            ExpressionAttributeValues=expression_values
+        )
+        Items = resp.get('Items')
+        return Items
+
+    @staticmethod
+    @filterAttrItemRes
+    def get_trans_by_branch_and_terminal_and_mode(branch_id,terminal_id,tran_mode,from_date,to_date):
+        key_condition_expression = "PK = :PK and SK BETWEEN :SK_FROM AND :SK_TO"
+        expression_values = {
+            ":PK": {"S": 'Transaction'},
+            ":SK_FROM": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#tran_mode{tran_mode}#created_at{from_date}"},
+            ":SK_TO": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#tran_mode{tran_mode}#created_at{to_date}"},
+        }
+        resp = client.query(
+            TableName=table_name,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )

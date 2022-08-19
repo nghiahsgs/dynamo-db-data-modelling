@@ -30,8 +30,8 @@ Items = resp.get('Items')
 # pprint(stocks)
 
 
-# branches = insert.Branch.get_all_branch()
-# pprint(branches)
+branches = insert.Branch.get_all_branch()
+pprint(branches)
 
 # branch_id = 'branch_id1'
 # terminals = insert.Terminal.get_terminals_by_branch_id(branch_id)
@@ -104,10 +104,10 @@ Items = resp.get('Items')
 # pprint(transactions)
 
 
-branch_id = 'branch_id1'
-terminal_id = 'terminal_id1'
-tran_mode = 'Western Union'
-from_date = '2022-08-17T03:03:59.952Z'
-to_date = '2022-08-17T03:03:59.952Z'
-transactions = insert.Transaction.get_trans_by_branch_and_terminal_and_mode(branch_id,terminal_id,tran_mode,from_date,to_date)
-pprint(transactions)
+# branch_id = 'branch_id1'
+# terminal_id = 'terminal_id1'
+# tran_mode = 'Western Union'
+# from_date = '2022-08-17T03:03:59.952Z'
+# to_date = '2022-08-17T03:03:59.952Z'
+# transactions = insert.Transaction.get_trans_by_branch_and_terminal_and_mode(branch_id,terminal_id,tran_mode,from_date,to_date)
+# pprint(transactions)

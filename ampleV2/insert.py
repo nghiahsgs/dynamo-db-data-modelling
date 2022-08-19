@@ -2,10 +2,32 @@ from datetime import datetime
 import boto3
 from pprint import pprint
 import json
-client = boto3.client('dynamodb', 
-    endpoint_url='http://localhost:8000'
-)
-table_name = "ample001"
+
+class ModelMixin():
+    client = boto3.client('dynamodb', 
+        endpoint_url='http://localhost:8000'
+    )
+    GSI_default = {
+        "GSI1_PK": {"S": 'METADATA' },
+        "GSI1_SK": {"S": 'METADATA' },
+
+        "GSI2_PK": {"S": 'METADATA' },
+        "GSI2_SK": {"S": 'METADATA' },
+
+        "GSI3_PK": {"S": 'METADATA' },
+        "GSI3_SK": {"S": 'METADATA' },
+
+        "GSI4_PK": {"S": 'METADATA' },
+        "GSI4_SK": {"S": 'METADATA' },
+
+        "GSI5_PK": {"S": 'METADATA' },
+        "GSI5_SK": {"S": 'METADATA' },
+        
+        "GSI6_PK": {"S": 'METADATA' },
+        "GSI6_SK": {"S": 'METADATA' },
+    }
+
+SINGLE_TABLE = "ample001"
 
 def filterAttrItemRes(func):
     def wrapperFunc(*args,**kargs):
@@ -21,7 +43,7 @@ def filterAttrItemRes(func):
     return wrapperFunc
     
 
-class Payment():
+class Payment(ModelMixin):
     def __init__(self,**properties):
         self.payment = properties
         
@@ -73,21 +95,21 @@ class Payment():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
     
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_payment():
+    def get_all_payment(cls):
         key_condition_expression = "PK = :PK"
         expression_values = {
             ":PK": {"S": 'Payment'},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
@@ -96,7 +118,7 @@ class Payment():
 
 
 
-class ServiceType():
+class ServiceType(ModelMixin):
     def __init__(self,**properties):
         self.service_type = properties
         self.properties = {}
@@ -147,21 +169,21 @@ class ServiceType():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
    
-    @staticmethod
-    def get_all_mode():
+    @classmethod
+    def get_all_mode(cls):
         key_condition_expression = "GSI1_PK = :GSI1_PK"
         expression_values = {
             ":GSI1_PK": {"S": 'METADATA_SERVICETYPE'},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI1',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -176,16 +198,16 @@ class ServiceType():
 
         return list_modes
 
-    @staticmethod
-    def search_service_type(mode,country,currency):
+    @classmethod
+    def search_service_type(cls,mode,country,currency):
         key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
         expression_values = {
             ":GSI1_PK": {"S": 'METADATA_SERVICETYPE'},
             ":GSI1_SK": {"S": f'mode{mode}#country{country}#currency{currency}'},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI1',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -208,7 +230,7 @@ class ServiceType():
 
 
 
-class PromoCode():
+class PromoCode(ModelMixin):
     def __init__(self,**properties):
         self.promo_code = properties
         self.properties = {}
@@ -259,14 +281,14 @@ class PromoCode():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
 
 
-class Terminal():
+class Terminal(ModelMixin):
     def __init__(self,**properties):
         self.terminal = properties
         
@@ -317,39 +339,39 @@ class Terminal():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_terminals_by_branch_id(branch_id):
+    def get_terminals_by_branch_id(cls,branch_id):
         key_condition_expression = "PK = :PK and begins_with(SK,:SK)"
         expression_values = {
             ":PK": {"S": 'Terminal'},
             ":SK": {"S": f"branch_id{branch_id}"},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_terminals_by_teller_id(teller_id):
+    def get_terminals_by_teller_id(cls,teller_id):
         key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
         expression_values = {
             ":GSI1_PK": {"S": 'METADATA_TERMINAL'},
             ":GSI1_SK": {"S": f'teller_id{teller_id}'},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI1',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -358,7 +380,7 @@ class Terminal():
         return Items
 
 
-class Branch():
+class Branch(ModelMixin):
     def __init__(self,**properties):
         self.branch = properties
         
@@ -381,6 +403,7 @@ class Branch():
     def insert(self):
         branch = self.branch
         Item={
+                **self.GSI_default,
                 **self.properties,
                 "type": {"S": 'Branch' },
                 
@@ -389,41 +412,23 @@ class Branch():
                 
                 "GSI_created_at_PK": {"S": 'METADATA_BRANCH' },
                 "GSI_created_at_SK": {"S": branch.get('created_at') if branch.get('created_at') else datetime.now().isoformat()},
-
-                "GSI1_PK": {"S": 'METADATA' },
-                "GSI1_SK": {"S": 'METADATA' },
-
-                "GSI2_PK": {"S": 'METADATA' },
-                "GSI2_SK": {"S": 'METADATA' },
-
-                "GSI3_PK": {"S": 'METADATA' },
-                "GSI3_SK": {"S": 'METADATA' },
-
-                "GSI4_PK": {"S": 'METADATA' },
-                "GSI4_SK": {"S": 'METADATA' },
-
-                "GSI5_PK": {"S": 'METADATA' },
-                "GSI5_SK": {"S": 'METADATA' },
-                
-                "GSI6_PK": {"S": 'METADATA' },
-                "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_branch():
+    def get_all_branch(cls):
         key_condition_expression = "PK = :PK"
         expression_values = {
             ":PK": {"S": 'Branch'},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
@@ -431,7 +436,7 @@ class Branch():
         return Items
 
 
-class Teller():
+class Teller(ModelMixin):
     def __init__(self,**properties):
         self.teller = properties
         
@@ -483,13 +488,13 @@ class Teller():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
 
-class Stock():
+class Stock(ModelMixin):
     def __init__(self,**properties):
         self.stock = properties
         
@@ -540,22 +545,22 @@ class Stock():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_stocks_by_stock_id(stock_id):
+    def get_stocks_by_stock_id(cls,stock_id):
         key_condition_expression = "PK = :PK and begins_with(SK,:SK)"
         expression_values = {
             ":PK": {"S": 'Stock'},
             ":SK": {"S": f'stock_id{stock_id}'},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
@@ -563,7 +568,7 @@ class Stock():
         return Items
 
 
-class Customer():
+class Customer(ModelMixin):
     def __init__(self,**properties):
         self.customer = properties
         
@@ -633,38 +638,38 @@ class Customer():
                 "GSI6_SK": {"S": f'customer_type{customer.get("customer_type")}#created_at{customer.get("created_at")}' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_customers():
+    def get_all_customers(cls):
         key_condition_expression = "PK = :PK"
         expression_values = {
             ":PK": {"S": 'Customer'},
             }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_customers_by_personal_id(personal_id):
+    def get_customers_by_personal_id(cls,personal_id):
         key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
         expression_values = {
             ":GSI1_PK": {"S": 'METADATA_CUSTOMER'},
             ":GSI1_SK": {"S": personal_id},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI1',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -672,17 +677,17 @@ class Customer():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_customers_by_contact_phone_number(contact_phone_number):
+    def get_customers_by_contact_phone_number(cls,contact_phone_number):
         key_condition_expression = "GSI2_PK = :GSI2_PK and begins_with(GSI2_SK,:GSI2_SK)"
         expression_values = {
             ":GSI2_PK": {"S": 'METADATA_CUSTOMER'},
             ":GSI2_SK": {"S": contact_phone_number},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI2',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -690,17 +695,17 @@ class Customer():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_customers_by_uen(uen):
+    def get_customers_by_uen(cls,uen):
         key_condition_expression = "GSI3_PK = :GSI3_PK and begins_with(GSI3_SK,:GSI3_SK)"
         expression_values = {
             ":GSI3_PK": {"S": 'METADATA_CUSTOMER'},
             ":GSI3_SK": {"S": uen},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI3',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -708,17 +713,17 @@ class Customer():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_customers_by_contact_name(contact_name):
+    def get_customers_by_contact_name(cls,contact_name):
         key_condition_expression = "GSI4_PK = :GSI4_PK and begins_with(GSI4_SK,:GSI4_SK)"
         expression_values = {
             ":GSI4_PK": {"S": 'METADATA_CUSTOMER'},
             ":GSI4_SK": {"S": contact_name},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI4',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -726,17 +731,17 @@ class Customer():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_customers_by_contact_email(contact_email):
+    def get_customers_by_contact_email(cls,contact_email):
         key_condition_expression = "GSI5_PK = :GSI5_PK and begins_with(GSI5_SK,:GSI5_SK)"
         expression_values = {
             ":GSI5_PK": {"S": 'METADATA_CUSTOMER'},
             ":GSI5_SK": {"S": contact_email},
         }
 
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI5',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -746,7 +751,7 @@ class Customer():
 
 
 
-class Bank():
+class Bank(ModelMixin):
     def __init__(self,**properties):
         self.bank = properties
         
@@ -799,13 +804,13 @@ class Bank():
                 "GSI6_SK": {"S": 'METADATA' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
 
 
-class Transaction():
+class Transaction(ModelMixin):
     def __init__(self,**properties):
         self.transaction = properties
         
@@ -876,21 +881,21 @@ class Transaction():
                 "GSI6_SK": {"S": f'branch_id{transaction["branch_id"]}#created_at{transaction["created_at"]}' },
         }
         # pprint(Item)
-        client.put_item(
-            TableName=table_name,
+        self.client.put_item(
+            TableName=SINGLE_TABLE,
             Item=Item
         )
     
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_transactions_by_payment_id(payment_id):
+    def get_all_transactions_by_payment_id(cls,payment_id):
         key_condition_expression = "GSI3_PK = :GSI3_PK and begins_with(GSI3_SK,:GSI3_SK)"
         expression_values = {
             ":GSI3_PK": {"S": 'METADATA_TRANSACTION'},
             ":GSI3_SK": {"S": payment_id},
         }
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI3',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -898,16 +903,16 @@ class Transaction():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_transactions_by_sender_id(customer_id):
+    def get_all_transactions_by_sender_id(cls,customer_id):
         key_condition_expression = "GSI1_PK = :GSI1_PK and begins_with(GSI1_SK,:GSI1_SK)"
         expression_values = {
             ":GSI1_PK": {"S": 'METADATA_TRANSACTION'},
             ":GSI1_SK": {"S": customer_id},
         }
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI1',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -915,16 +920,16 @@ class Transaction():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_transactions_by_receiver_id(customer_id):
+    def get_all_transactions_by_receiver_id(cls,customer_id):
         key_condition_expression = "GSI2_PK = :GSI2_PK and begins_with(GSI2_SK,:GSI2_SK)"
         expression_values = {
             ":GSI2_PK": {"S": 'METADATA_TRANSACTION'},
             ":GSI2_SK": {"S": customer_id},
         }
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI2',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -932,15 +937,15 @@ class Transaction():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_all_transactions():
+    def get_all_transactions(cls):
         key_condition_expression = "PK = :PK"
         expression_values = {
             ":PK": {"S": 'Transaction'}
         }
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
@@ -948,9 +953,9 @@ class Transaction():
         return Items
 
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_trans_by_branch(branch_id,from_date,to_date):
+    def get_trans_by_branch(cls,branch_id,from_date,to_date):
         key_condition_expression = "GSI6_PK = :GSI6_PK and GSI6_SK BETWEEN :GSI6_SK_FROM AND :GSI6_SK_TO"
         expression_values = {
             ":GSI6_PK": {"S": 'METADATA_TRANSACTION'},
@@ -958,8 +963,8 @@ class Transaction():
             ":GSI6_SK_TO": {"S": f"branch_id{branch_id}#created_at{to_date}"}
         }
         
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI6',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -967,9 +972,9 @@ class Transaction():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_trans_by_branch_and_terminal(branch_id,terminal_id,from_date,to_date):
+    def get_trans_by_branch_and_terminal(cls,branch_id,terminal_id,from_date,to_date):
         key_condition_expression = "GSI5_PK = :GSI5_PK and GSI5_SK BETWEEN :GSI5_SK_FROM AND :GSI5_SK_TO"
         expression_values = {
             ":GSI5_PK": {"S": 'METADATA_TRANSACTION'},
@@ -977,8 +982,8 @@ class Transaction():
             ":GSI5_SK_TO": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#created_at{to_date}"},
         }
         
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             IndexName='GSI5',
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
@@ -986,17 +991,17 @@ class Transaction():
         Items = resp.get('Items')
         return Items
 
-    @staticmethod
+    @classmethod
     @filterAttrItemRes
-    def get_trans_by_branch_and_terminal_and_mode(branch_id,terminal_id,tran_mode,from_date,to_date):
+    def get_trans_by_branch_and_terminal_and_mode(cls,branch_id,terminal_id,tran_mode,from_date,to_date):
         key_condition_expression = "PK = :PK and SK BETWEEN :SK_FROM AND :SK_TO"
         expression_values = {
             ":PK": {"S": 'Transaction'},
             ":SK_FROM": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#tran_mode{tran_mode}#created_at{from_date}"},
             ":SK_TO": {"S": f"branch_id{branch_id}#terminal_id{terminal_id}#tran_mode{tran_mode}#created_at{to_date}"},
         }
-        resp = client.query(
-            TableName=table_name,
+        resp = cls.client.query(
+            TableName=SINGLE_TABLE,
             KeyConditionExpression=key_condition_expression,
             ExpressionAttributeValues=expression_values
         )
@@ -1198,43 +1203,43 @@ if __name__ =="__main__":
     ]
 
 
-    for item in payments:
-        instance = Payment(**item)
-        instance.insert()
+    # for item in payments:
+    #     instance = Payment(**item)
+    #     instance.insert()
     
-    for item in service_types:
-        instance = ServiceType(**item)
-        instance.insert()
+    # for item in service_types:
+    #     instance = ServiceType(**item)
+    #     instance.insert()
     
-    for item in promo_codes:
-        instance = PromoCode(**item)
-        instance.insert()
+    # for item in promo_codes:
+    #     instance = PromoCode(**item)
+    #     instance.insert()
     
-    for item in terminals:
-        instance = Terminal(**item)
-        instance.insert()
+    # for item in terminals:
+    #     instance = Terminal(**item)
+    #     instance.insert()
 
     for item in branches:
         instance = Branch(**item)
         instance.insert()
 
-    for item in tellers:
-        instance = Teller(**item)
-        instance.insert()
+    # for item in tellers:
+    #     instance = Teller(**item)
+    #     instance.insert()
     
-    for item in stocks:
-        instance = Stock(**item)
-        instance.insert()
+    # for item in stocks:
+    #     instance = Stock(**item)
+    #     instance.insert()
 
-    for item in customers:
-        instance = Customer(**item)
-        instance.insert()
+    # for item in customers:
+    #     instance = Customer(**item)
+    #     instance.insert()
 
-    for item in banks:
-        instance = Bank(**item)
-        instance.insert()
+    # for item in banks:
+    #     instance = Bank(**item)
+    #     instance.insert()
 
-    for item in transactions:
-        instance = Transaction(**item)
-        instance.insert()
+    # for item in transactions:
+    #     instance = Transaction(**item)
+    #     instance.insert()
 
